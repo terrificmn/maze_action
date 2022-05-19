@@ -27,9 +27,6 @@ find_package(rosidl_default_generators REQUIRED)
 # so that they can be used in those languages, add the following lines
 rosidl_generate_interfaces(${PROJECT_NAME}
   #"msg/Num.msg"
-  #"srv/AddThreeInts.srv"
-  "srv/TurningControl.srv"
-  "action/Fibonacci.action"
   "action/Maze.action"
 )
 
