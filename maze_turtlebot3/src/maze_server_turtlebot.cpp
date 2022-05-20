@@ -4,7 +4,6 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-//#include "rclcpp_components/register_node_macro.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -54,7 +53,7 @@ public:
         using std::placeholders::_1;
         // 가제보 시뮬용   //"/cam0_sensor/image_raw" --터틀봇
         subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
-            "/cam0_sensor/image_raw", 10, 
+            "/cam0/camera/image_raw", 10, 
             std::bind(&ImageSubscriber::image_callback, this, _1)
         );  
     }
@@ -143,10 +142,10 @@ private:
 
         // 세곳의 포인트 모두 그린이 높으면 true 리턴
         if(is_spot_green[0] == true && is_spot_green[1] == true && is_spot_green[2] == true) {
-            RCLCPP_WARN(this->get_logger(), "a high chance of green");
+            //RCLCPP_WARN(this->get_logger(), "a high chance of green");
             return this->is_green = true;
         } else {
-            RCLCPP_WARN(this->get_logger(), "a low chance of green");
+            //RCLCPP_WARN(this->get_logger(), "a low chance of green");
             return this->is_green = false;
         }
     }
@@ -156,13 +155,6 @@ private:
 //double odometryCallback_(const nav_msgs::msg::Odometry::SharedPtr quaternion) { //처음 형태 type을 맞춰야한다
 double odometryCallback_(const geometry_msgs::msg::Quaternion quaternion) {
     // quaternion이 넘어옴
-
-/*
-이 부분이 잘 통과하기는 했는데, 함수에 매개변수로 넘겨주는 것이라, 기존의 예제처럼 SharedPtr 식으로 받으면 안됨
-그냥 Quaternion으로 그대로 받아준다.
-대신에 꼭 이 함수가 필요한지는 생각해볼 필요가 없다.. 어차피 odom_sub_cb() 메소드에서 
-nav_msgs를 받으니 거기에서 그냥 pose.pose.position.x,y,z,w 몽땅 한번에 받아서 변환해도 될 것 같은데...
-*/
     tf2::Quaternion q(
         quaternion.x,
         quaternion.y,
@@ -174,9 +166,7 @@ nav_msgs를 받으니 거기에서 그냥 pose.pose.position.x,y,z,w 몽땅 한�
     double roll, pitch, yaw;
     m.getRPY(roll, pitch, yaw);
     
-    //return roll, pitch, yaw;
     //std::cout << "odom data processed" << std::endl;
-
     return yaw;
 }
 
@@ -184,6 +174,8 @@ nav_msgs를 받으니 거기에서 그냥 pose.pose.position.x,y,z,w 몽땅 한�
 
 class MazeActionServer : public rclcpp::Node {
 private:
+    float yaw = 0.0;
+    double forward_distance = 0.0;
     rclcpp_action::Server<custom_interfaces::action::Maze>::SharedPtr m_action_server;
     rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_sub;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub;
@@ -192,13 +184,25 @@ private:
     geometry_msgs::msg::Twist twist_msg; //for publish
     rclcpp::TimerBase::SharedPtr timer_;
     
-protected:
-    float yaw = 0.0;
-    double forward_distance = 0.0;
+    // 파라미터 
+    int param_laserRanges;
+    float param_turn_limit, param_dist_limit, param_spd_limit;
 
 public:
     MazeActionServer() : Node("maze_action_server") {
         using namespace std::placeholders;
+
+        // 기본 turtlebot3 용 설정
+        this->declare_parameter<int>("laserMsgRanges", 1);
+        this->declare_parameter<float>("turnLimit", 0.037);
+        this->declare_parameter<float>("distanceLimit", 0.28);  // tight 0.23  // 0.28 due to camera's length
+        this->declare_parameter<float>("speedLimit", 0.04);     // 0.05 넘어가도 꽤 빨라(?)짐
+
+        this->get_parameter("laserMsgRanges", param_laserRanges);
+        this->get_parameter("turnLimit", param_turn_limit);
+        this->get_parameter("distanceLimit", param_dist_limit);
+        this->get_parameter("speedLimit", param_spd_limit);
+
         laser_sub = this->create_subscription<sensor_msgs::msg::LaserScan>(
             "/scan", rclcpp::SensorDataQoS(), std::bind(&MazeActionServer::laser_sub_cb, this, _1));
         
@@ -217,11 +221,6 @@ public:
             std::bind(&MazeActionServer::handle_cancel, this, _1),
             std::bind(&MazeActionServer::handle_accepted, this, _1));
             
-            // std::bind(&MazeActionServer::handle_cancel, this, _1),
-            // std::bind(&MazeActionServer::handle_accepted, this, _1));
-            // 윗 부분 아마도 바꿔야할 듯.. execute_callback이 아니고 handle_goal 만들어야할지도
-            // 파라미터를 handle_goal 메소드로 했을 때에는 _1, _2 이렇게 했었는데 차이점 알아보기
-
         RCLCPP_INFO(this->get_logger(), "===== Maze Action Server Started =====");
     }
 
@@ -258,13 +257,12 @@ public:
     }
     
     void laser_sub_cb(const sensor_msgs::msg::LaserScan::SharedPtr laserMsg) {
-        if (isnan(laserMsg->ranges[1]) != 0) {
-            this->forward_distance = 0.5;    // NaN 일 때 강제로 0.5로 넣어주기;; (좋은 방법은 아닌듯)
+        if (isnan(laserMsg->ranges[param_laserRanges]) != 0) {
+            this->forward_distance = 0.5;    // NaN 일 때 강제로 0.5 - 임시
         } else {
-            this->forward_distance = laserMsg->ranges[1];
+            this->forward_distance = laserMsg->ranges[param_laserRanges];
         }
         //NaN이 아니면 0 return
-        
         //this->forward_distance = laserMsg->ranges.size();
     }
 
@@ -272,12 +270,12 @@ public:
         auto orientation = odomMsg->pose.pose.orientation;  
         
         //orientation이 orientation을 받으면서 quaternion으로 되버려서, odometryCallback_()함수와 자료형이 맞지 않는다.
-
         // conversion
-        // 리턴값 확인하기!!, yaw값은 turn_robot() 메소드에서 사용된다
+        // yaw값은 turn_robot() 메소드에서 사용된다
         this->yaw = odometryCallback_(orientation); 
     }
 
+    // keep publishing
     void publish_callback() {
         this->cmd_vel_pub->publish(this->twist_msg);
     }
@@ -291,7 +289,7 @@ public:
 
         //RCLCPP_INFO(this->get_logger(), "converted yaw is %f", this->yaw);
 
-        while (std::abs(turn_offset) > 0.037) {  //0.087  //abs() for float,double <cmath>
+        while (std::abs(turn_offset) > param_turn_limit) {  //0.087  //abs() for float,double <cmath>
             // P Gain Control, PID Control 이라고 한다고 함
             turn_offset = 0.5 * (defined_direction - this->yaw);  // 여기 값을 바꾸는 것은 의미가 없는 듯 하다..
             //odom_sub_cb에서 오일러각으로 변환된 yaw를 갱신, 현재 테스트로 yaw를 그냥 고정시켜야할 듯
@@ -299,34 +297,26 @@ public:
             this->twist_msg.angular.z = turn_offset;
 
             //std::cout << "turn_offset: " << turn_offset << "  yaw: " << this->yaw << std::endl;
+            //테스트 코드
+            // std::cout << param_laserRanges << std::endl;
+            // std::cout << param_turn_limit << std::endl;
         }
         // 회전 이후는 로봇을 정지시킨다
         this->stop_robot();
     }
 
-    void parking_robot() {
+    void moving_robot() {
         //RCLCPP_INFO(this->get_logger(), "time start ");
-        while (this->forward_distance > 0.28) {  // tight 0.23  // 0.28 due to camera's length
-            this->twist_msg.linear.x = 0.04;  /// 0.05 넘어가도 꽤 빨라(?)진다 //turtlebot용
+        while (this->forward_distance > param_dist_limit) {  // tight 0.23  // 0.28 due to camera's length
+            this->twist_msg.linear.x = param_spd_limit;  /// 0.05 넘어가도 꽤 빨라(?)진다 //turtlebot용
             this->twist_msg.angular.z = 0;
             
-            ///확실히 여기에서는 문자열을 출력을 하면 터틀봇이3 조건이 false가 되지 않았는데도 빠져나가버림
-            // RCLCPP_INFO or cout으로 출력을 안하면 조건에 맞게 계속 수행한다;;
-            //RCLCPP_INFO(this->get_logger(), "forward distance: %f", this->forward_distance);
             
-            
-            /// 여기까지는 왼쪽 오른쪽 앞으로 즉, 0, 2, 3번 다 됨 레이저도 보고 멈춤
-            ///중요~ 여기서는 확실하게 publish를 해줘야 한다~ 다른곳은 일단 안해도 되기는 하는 것 같음
-            //여기를 퍼블리쉬를 안하면 센세데이터를 잘 못받아오는 것 같다
-            //this->cmd_vel_pub->publish(this->twist_msg);
-            //this->publish_callback();
-
-            /// 이미 cmd_vel_pub 메소드에서 publish를 하는 중
-
-            // 임의로 테스트중 무한루프이지만 subscribe를 안하면 큰 의미가 없는 듯 하다
-            // 한번 돌고 끝남
         }
         // RCLCPP_INFO(this->get_logger(), "loop exit at %f", this->forward_distance);
+        // 테스트
+        // std::cout << param_dist_limit << std::endl;
+        // std::cout << param_spd_limit << std::endl;
         this->stop_robot();
     }
     
@@ -346,8 +336,7 @@ public:
         RCLCPP_INFO(this->get_logger(), "Executing goal");
         
         for (int val : goal->turning_sequence) {
-            //RCLCPP_INFO(this->get_logger(), "Current Input: %d", val);
-
+            RCLCPP_INFO(this->get_logger(), "Current Input: %d", val);
             RCLCPP_INFO(this->get_logger(), "Turning %s ", direction_str_vec[val].c_str()); //출력시 c_str() 글자 안깨짐
 
             // 사용자에게 보여주기 위한 vector 스트링, 일치하는 문자열 프린트
@@ -357,9 +346,9 @@ public:
             //메소드 호출 // 사용자 입력과 (turning_sequence) 같은 direction_flt_vec의 같은 배열 value값을 넘김
             turn_robot(direction_flt_vec[val]);
 
-            parking_robot();
             // feedback 보냄
             goal_handle->publish_feedback(feedback);
+            moving_robot();
         }
 
         // image_subscriber 객체 만들기-- spin_some 이 전혀 작동을 안함 executor와 관계가 있을까?
@@ -377,6 +366,7 @@ public:
         //rclcpp::spin_some(image_subscriber);
         rclcpp::spin_some(image_subscriber);
         
+        // img 녹색 확인하기
         bool is_green = image_subscriber->get_chk_if_green();
         
         // 최종 result 값 결정해서 보내주기
@@ -405,13 +395,10 @@ int main(int argc, char ** argv) {
         // You MUST use the MultiThreadedExecutor to use, well, multiple threads
         rclcpp::executors::MultiThreadedExecutor executor;
         executor.add_node(maze_action_server);
-        
         executor.spin();  //반복
-        //rclcpp::spin(maze_action_server);  // 그냥 spin으로 해도 결과는 같다;; ㅠ
 
     // exceptions 알아보기 추가로 더 알아보기
     } catch (rclcpp::exceptions::RCLError &e) {
-        //signal(SIGINT, signal_handler);
         RCLCPP_INFO(maze_action_server->get_logger(), "Keyboard Interrupt (SIGINT)");
     }
 
