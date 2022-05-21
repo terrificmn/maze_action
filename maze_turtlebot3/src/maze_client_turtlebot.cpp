@@ -1,6 +1,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "custom_interfaces/action/maze.hpp"
+#include "maze_interfaces/action/maze.hpp"
 
 #include <memory>
 #include <thread>
@@ -15,8 +15,8 @@ using namespace std::chrono_literals;   //ms 사용하기 위해
 //string 타입의 feedback_msg를 지속적으로 출력해준다
 class MazeActionClient : public rclcpp::Node {
 private:
-    rclcpp_action::Client<custom_interfaces::action::Maze>::SharedPtr action_client;
-    rclcpp_action::ClientGoalHandle<custom_interfaces::action::Maze>::SharedPtr goal_handle;
+    rclcpp_action::Client<maze_interfaces::action::Maze>::SharedPtr action_client;
+    rclcpp_action::ClientGoalHandle<maze_interfaces::action::Maze>::SharedPtr goal_handle;
     rclcpp::TimerBase::SharedPtr timer_;
     bool goal_done_;
 
@@ -25,7 +25,7 @@ protected:
 
 public:
     MazeActionClient() : Node("maze_action_client") {
-        this->action_client = rclcpp_action::create_client<custom_interfaces::action::Maze>(this, "maze");
+        this->action_client = rclcpp_action::create_client<maze_interfaces::action::Maze>(this, "maze");
         // timer_ = this->create_wall_timer(
         //         500ms, std::bind(&MazeActionClient::send_goal, this));
         this->timer_ = this->create_wall_timer(std::chrono::milliseconds(500),
@@ -43,7 +43,7 @@ public:
         return is_goal_handle;
     }
 
-    const std::shared_future<rclcpp_action::ClientGoalHandle<custom_interfaces::action::Maze>::WrappedResult> get_result_future() {
+    const std::shared_future<rclcpp_action::ClientGoalHandle<maze_interfaces::action::Maze>::WrappedResult> get_result_future() {
         auto result_future = this->action_client->async_get_result(goal_handle);
         return result_future;
     }
@@ -75,14 +75,14 @@ public:
             return;
         }
 
-        auto goal_msg = custom_interfaces::action::Maze::Goal(); 
+        auto goal_msg = maze_interfaces::action::Maze::Goal(); 
         
         //send_goal()함수에 파라미터로 유저인풋을 넘길려고 했으나, walltimer에 type 때문에 에러
         //goal_msg.turning_sequence = this->turning_list;
         goal_msg.turning_sequence = this->get_turning_list();  //입력받은 배열 action msg에 넣어주기
         // 일단 send_goal() 호출되는 시점이 입력 받은 후 이기 떄문에, 일단 이렇게 처리
 
-        auto send_goal_options = rclcpp_action::Client<custom_interfaces::action::Maze>::SendGoalOptions();
+        auto send_goal_options = rclcpp_action::Client<maze_interfaces::action::Maze>::SendGoalOptions();
         
         send_goal_options.goal_response_callback = std::bind(&MazeActionClient::goal_response_callback, this, _1);
         send_goal_options.feedback_callback = std::bind(&MazeActionClient::feedback_callback, this, _1, _2);
@@ -92,14 +92,14 @@ public:
     }
 
     // 일단 feedback 부분에서도 type관련 에러인듯 하다... 일단 주석처리
-    void feedback_callback(rclcpp_action::ClientGoalHandle<custom_interfaces::action::Maze>::SharedPtr, 
-                            const std::shared_ptr<const custom_interfaces::action::Maze::Feedback> feedback) {
+    void feedback_callback(rclcpp_action::ClientGoalHandle<maze_interfaces::action::Maze>::SharedPtr, 
+                            const std::shared_ptr<const maze_interfaces::action::Maze::Feedback> feedback) {
         //단순 출력
         RCLCPP_INFO(this->get_logger(), "Received feedback: %s", feedback->feedback_msg.c_str());
     }
 
     // goal_response_callback to check goal acceptation by action server:
-    void goal_response_callback(std::shared_future<rclcpp_action::ClientGoalHandle<custom_interfaces::action::Maze>::SharedPtr> future) {
+    void goal_response_callback(std::shared_future<rclcpp_action::ClientGoalHandle<maze_interfaces::action::Maze>::SharedPtr> future) {
         goal_handle = future.get();
 
         if (!goal_handle) {
@@ -110,7 +110,7 @@ public:
     }
 
     // result_callback to get result once it is sent by action server:
-    void result_callback(const rclcpp_action::ClientGoalHandle<custom_interfaces::action::Maze>::WrappedResult & result) {
+    void result_callback(const rclcpp_action::ClientGoalHandle<maze_interfaces::action::Maze>::WrappedResult & result) {
         //RCLCPP_INFO(this->get_logger(), "Received feedback: %s", feedback.feedback_msg);
         // 최종 result 여부 
         this->goal_done_ = true;

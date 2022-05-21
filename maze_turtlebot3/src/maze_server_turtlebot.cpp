@@ -9,14 +9,13 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
-#include <string>
 #include <map>
 
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "sensor_msgs/msg/laser_scan.hpp"
-#include "custom_interfaces/action/maze.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
+#include "maze_interfaces/action/maze.hpp"
 
 // for image_sub // OpenCV
 #include "sensor_msgs/msg/image.hpp"
@@ -28,7 +27,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 // GoalHandleMaze 사용
-using GoalHandleMaze = rclcpp_action::ServerGoalHandle<custom_interfaces::action::Maze>;
+using GoalHandleMaze = rclcpp_action::ServerGoalHandle<maze_interfaces::action::Maze>;
 using namespace std::chrono_literals;   //ms 사용하기 위해
 
 // define each direction
@@ -53,7 +52,7 @@ public:
         using std::placeholders::_1;
         // 가제보 시뮬용   //"/cam0_sensor/image_raw" --터틀봇
         subscription_ = this->create_subscription<sensor_msgs::msg::Image>(
-            "/cam0/camera/image_raw", 10, 
+            "/camera0/image_raw", 10, 
             std::bind(&ImageSubscriber::image_callback, this, _1)
         );  
     }
@@ -176,7 +175,7 @@ class MazeActionServer : public rclcpp::Node {
 private:
     float yaw = 0.0;
     double forward_distance = 0.0;
-    rclcpp_action::Server<custom_interfaces::action::Maze>::SharedPtr m_action_server;
+    rclcpp_action::Server<maze_interfaces::action::Maze>::SharedPtr m_action_server;
     rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_sub;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub;
     rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub;
@@ -214,7 +213,7 @@ public:
         timer_ = create_wall_timer(
                 100ms, std::bind(&MazeActionServer::publish_callback, this));
 
-        this->m_action_server = rclcpp_action::create_server<custom_interfaces::action::Maze>(
+        this->m_action_server = rclcpp_action::create_server<maze_interfaces::action::Maze>(
             this,
             "maze",
             std::bind(&MazeActionServer::handle_goal, this, _1, _2),
@@ -227,7 +226,7 @@ public:
     //handle_goal method (파라미터가 길어서 주의;;)
     rclcpp_action::GoalResponse handle_goal(
         const rclcpp_action::GoalUUID & uuid, 
-        std::shared_ptr<const custom_interfaces::action::Maze::Goal> goal) {
+        std::shared_ptr<const maze_interfaces::action::Maze::Goal> goal) {
         
         (void)uuid;
         
@@ -242,14 +241,14 @@ public:
 
     // CancelResponse
     rclcpp_action::CancelResponse handle_cancel(
-        const std::shared_ptr<rclcpp_action::ServerGoalHandle<custom_interfaces::action::Maze>> goal_handle) {
+        const std::shared_ptr<rclcpp_action::ServerGoalHandle<maze_interfaces::action::Maze>> goal_handle) {
         
         RCLCPP_WARN(this->get_logger(), "Got request to cancel goal");
         (void)goal_handle;
         return rclcpp_action::CancelResponse::ACCEPT;
     }
 
-    void handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<custom_interfaces::action::Maze>> goal_handle) {
+    void handle_accepted(const std::shared_ptr<rclcpp_action::ServerGoalHandle<maze_interfaces::action::Maze>> goal_handle) {
         using namespace std::placeholders;
         // this needs to return quickly to avoid blocking the executor, 
         // so spin up a new thread
@@ -330,8 +329,8 @@ public:
     void execute(const std::shared_ptr<GoalHandleMaze> goal_handle) {
         rclcpp::WallRate loop_rate(5);  
         const auto goal = goal_handle->get_goal();  //goal_handle->get_goal()->turning_sequence
-        auto feedback = std::make_shared<custom_interfaces::action::Maze::Feedback>();
-        auto result = std::make_shared<custom_interfaces::action::Maze::Result>();
+        auto feedback = std::make_shared<maze_interfaces::action::Maze::Feedback>();
+        auto result = std::make_shared<maze_interfaces::action::Maze::Result>();
 
         RCLCPP_INFO(this->get_logger(), "Executing goal");
         

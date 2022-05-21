@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(custom_interfaces)
+project(maze_interfaces)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -18,15 +18,8 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
 
-# srv 디렉토리에 파일하나 추가해줌
-# To convert the interfaces you defined into language-specific code (like C++ and Python)
-# so that they can be used in those languages, add the following lines
 rosidl_generate_interfaces(${PROJECT_NAME}
-  #"msg/Num.msg"
   "action/Maze.action"
 )
 

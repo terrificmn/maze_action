@@ -18,7 +18,7 @@ find_package(rclcpp_components REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(custom_interfaces REQUIRED)
+find_package(maze_interfaces REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(cv_bridge REQUIRED)
 
@@ -27,13 +27,13 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 add_executable(maze_action_server_turtlebot src/maze_server_turtlebot.cpp)
 ament_target_dependencies(maze_action_server_turtlebot rclcpp 
   rclcpp_action rclcpp_components
-  geometry_msgs nav_msgs sensor_msgs custom_interfaces
+  geometry_msgs nav_msgs sensor_msgs maze_interfaces
   OpenCV cv_bridge
 )
 
 add_executable(maze_action_client_turtlebot src/maze_client_turtlebot.cpp)
 ament_target_dependencies(maze_action_client_turtlebot rclcpp  
-  rclcpp_action custom_interfaces
+  rclcpp_action maze_interfaces
 )
 
 install(TARGETS
@@ -42,6 +42,10 @@ maze_action_client_turtlebot
 
   DESTINATION lib/${PROJECT_NAME})
 
+install(DIRECTORY 
+  launch
+  DESTINATION share/${PROJECT_NAME}
+)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
