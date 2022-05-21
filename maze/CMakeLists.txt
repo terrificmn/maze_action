@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(maze_turtlebot3)
+project(maze)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -24,21 +24,21 @@ find_package(cv_bridge REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_executable(maze_action_server_turtlebot src/maze_server_turtlebot.cpp)
-ament_target_dependencies(maze_action_server_turtlebot rclcpp 
+add_executable(maze_action_server_node src/maze_server.cpp)
+ament_target_dependencies(maze_action_server_node rclcpp 
   rclcpp_action rclcpp_components
   geometry_msgs nav_msgs sensor_msgs maze_interfaces
   OpenCV cv_bridge
 )
 
-add_executable(maze_action_client_turtlebot src/maze_client_turtlebot.cpp)
-ament_target_dependencies(maze_action_client_turtlebot rclcpp  
+add_executable(maze_action_client_node src/maze_client.cpp)
+ament_target_dependencies(maze_action_client_node rclcpp  
   rclcpp_action maze_interfaces
 )
 
 install(TARGETS
-maze_action_server_turtlebot
-maze_action_client_turtlebot
+maze_action_server_node
+maze_action_client_node
 
   DESTINATION lib/${PROJECT_NAME})
 

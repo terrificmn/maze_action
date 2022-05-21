@@ -41,7 +41,7 @@ sudo apt-get install python3-opencv
 <br/>
 
 ## maze_action 의 패키지 설명
-1. maze_turtlebot3  
+1. maze  
 maze_action_server, maze_action_client로 ROS2 action으로 로봇 구동
 
 2. maze_interfaces   
@@ -63,7 +63,7 @@ cd ~/colcon_ws/src
 git clone https://github.com/terrificmn/maze_action.git
 ```
 
-3. 먼저 custom_interfaces 패키지를 먼저 빌드 (maze 패키지의 의존성 때문에)
+3. 먼저 maze_interfaces 패키지를 먼저 빌드 (maze 패키지의 의존성 때문에)
 ```
 cd ~/colcon_ws
 colcon build --packages-select maze_interfaces
@@ -105,7 +105,9 @@ ros2 launch 카메라패키지 execute
 <br/>
 
 ## maze_action 패키지 실행
-1. turtlebot3 버전으로 실행 시키려면 maze_action_server_node를 실행합니다.  
+실제 터틀봇3을 구동하거나 가제보 실행으로 시뮬레이션을 하는 2가지 방법이 있습니다.  
+
+1. turtlebot3 구동과 함께 버전으로 실행 시키려면 maze_action_server_node를 실행합니다.  
 마찬가지로 소싱을 함
 ```
 cd ~/colcon_ws
@@ -114,12 +116,18 @@ source install/setup.sh
 
 그리고 maze_action_server 노드 실행
 ```
-ros2 run maze_turtlebot maze_aciton_server_turtlebot
+ros2 run maze maze_action_server_node
 ```
 
-2. simulation용으로 gazebo에서 실행할려고 할 때에는 런치파일로 실행합니다.
+2. 터틀봇3 없이 시뮬레이션으로 gazebo에서 실행할려고 할 때에는 런치파일로 실행합니다.
+가제보 소스 해주기
 ```
-ros2 launch  maze_turtlebot3 maze_server.launch.py
+. /usr/share/gazebo/setup.sh
+```
+
+런치파일 실행
+```
+ros2 launch maze maze_server.launch.py
 ```
 *가제보 관련 업데이트 (모델확인 후)
 
@@ -131,7 +139,36 @@ source install/setup.sh
 
 이번에는 maze_action_client 노드 실행함
 ```
-ros2 run maze maze_action_client
+ros2 run maze maze_action_client_node
+```
+
+<br/>
+
+## action_server_node 실행 후 topic
+- turtlebot3 전용으로 실행했을 경우
+```
+/cmd_vel
+/odom
+/parameter_events
+/rosout
+/scan
+```
+
+- gazebo 실행 했을 경우
+```
+/dolly/cmd_vel
+/dolly/laser_scan
+/dolly/odom
+/parameter_events
+/rosout
+```
+
+<br/>
+
+## 가제보 실행했을 경우 카메라 화면 보기
+rqt_image_view 노드 실행으로 보기
+```
+ros2 run rqt_image_view rqt_image_view 
 ```
 
 <br/>

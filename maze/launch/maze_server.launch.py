@@ -4,8 +4,8 @@ from launch_ros.actions import Node
 def generate_launch_description():
 
     maze_node = Node(
-        package='maze_turtlebot3',
-        executable='maze_action_server_turtlebot',
+        package='maze',
+        executable='maze_action_server_node',
         output='screen',
         remappings=[
             ('/scan', '/dolly/laser_scan'),
