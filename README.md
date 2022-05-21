@@ -44,7 +44,7 @@ sudo apt-get install python3-opencv
 1. maze_turtlebot3  
 maze_action_server, maze_action_client로 ROS2 action으로 로봇 구동
 
-2. custom_interfaces   
+2. maze_interfaces   
 사용자 정의 ROS2 action type 지정
 
 3. ros2_camera 노드 패키지  
@@ -66,7 +66,7 @@ git clone https://github.com/terrificmn/maze_action.git
 3. 먼저 custom_interfaces 패키지를 먼저 빌드 (maze 패키지의 의존성 때문에)
 ```
 cd ~/colcon_ws
-colcon build --packages-select costom_interfaces
+colcon build --packages-select maze_interfaces
 ```
 
 4. 빌드가 완료되면 나머지 maze 빌드
@@ -105,6 +105,7 @@ ros2 launch 카메라패키지 execute
 <br/>
 
 ## maze_action 패키지 실행
+1. turtlebot3 버전으로 실행 시키려면 maze_action_server_node를 실행합니다.  
 마찬가지로 소싱을 함
 ```
 cd ~/colcon_ws
@@ -113,10 +114,17 @@ source install/setup.sh
 
 그리고 maze_action_server 노드 실행
 ```
-ros2 run maze_turtlebot maze_aciton_server)
+ros2 run maze_turtlebot maze_aciton_server_turtlebot
 ```
 
-다른 터미널을 열어서 또 소싱을 해준다
+2. simulation용으로 gazebo에서 실행할려고 할 때에는 런치파일로 실행합니다.
+```
+ros2 launch  maze_turtlebot3 maze_server.launch.py
+```
+*가제보 관련 업데이트 (모델확인 후)
+
+3. 액션 클라이언트 노드 실행 (공통)  
+그리고 다른 터미널을 열어줍니다. 또 sourcing을 해준다
 ```
 source install/setup.sh
 ```
@@ -125,6 +133,7 @@ source install/setup.sh
 ```
 ros2 run maze maze_action_client
 ```
+
 <br/>
 
 ## maze_action_client 에서 명령 시퀸스 입력하기
