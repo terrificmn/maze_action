@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+
+<sdf version="1.7">
+    <world name="default">
+        <include>
+            <uri>model://sun</uri>
+        </include>
+
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+
+        <include>
+            <pose>-5.4 4.0 0.33 0 0 0</pose>
+            <uri>model://dolly_custom</uri>
+        </include>
+
+        <include>
+            <pose>-0.153 -5.549 0.5 0 0 0</pose>
+            <uri>model://unit_sphere_green</uri>
+        </include>
+
+        <include>
+            <pose>8.313 -4.777 0.5 0 0 0</pose>
+            <uri>model://unit_sphere_red</uri>
+        </include>
+
+        <include>
+            <pose>2.417 0.2725 0 0 -0 0</pose>
+            <uri>model://wall_maze</uri>
+        </include>
+    </world>
+</sdf>
