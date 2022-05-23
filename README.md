@@ -38,6 +38,10 @@ turtlebot3
 sudo apt-get update
 sudo apt-get install python3-opencv
 ```
+
+- camera pub 노드   
+turtlebot3를 직접 사용하는 경우 사용
+
 <br/>
 
 ## maze_action 의 패키지 설명
@@ -50,8 +54,6 @@ maze_action_server, maze_action_client로 ROS2 action으로 로봇 구동
 3. maze_dolly
 gazebo로 dolly 로봇 모델과 미로를 통해 시뮬레이션
 
-4. ros2_camera 노드 패키지  
-웹캠을 통해서 image를 ROS2의 msg로 변환해서 publishing
 
 <br/>
 
@@ -76,6 +78,35 @@ colcon build --packages-select maze_interfaces
 ```
 colcon build --symlink-install 
 ```
+<br/>
+
+## 터틀봇3 카메라 노드 설치 및 실행
+터틀봇3를 직접 사용하는 경우에 터틀봇3에 설치를 할 수 있습니다.   
+(만약 시뮬레이션을 사용하려면 스킵해주세요)
+
+Remote PC에서 ssh로 turtlebot3의 라즈베리파이에 접속 합니다.   
+```
+ssh ubuntu@192.168.0.101
+```
+
+turtlebot3의 라즈베리파이의 colcon/src 디렉토리로 (또는 자신의 워크스페이스) 이동 후 깃 클론을 해준다
+```
+cd ~/colcon/src
+https://github.com/terrificmn/camera_pub
+```
+
+그리고 빌드를 해준다. 그리고 setup파일을 실행해준다
+```
+cd ~/colcon
+colcon build --symlink-install 
+. install/setup.sh
+```
+
+카메라 publish노드를 실행한다
+```
+ros2 run camera_pub pub_cam_node
+```
+
 <br/>
 
 ## 터틀봇3 실행
