@@ -52,7 +52,7 @@ maze_action_server, maze_action_client로 ROS2 action으로 로봇 구동
 사용자 정의 ROS2 action type
 
 3. maze_dolly
-gazebo로 dolly 로봇 모델과 미로를 통해 시뮬레이션
+gazebo로 커스텀 dolly 로봇으로 시뮬레이션
 
 
 <br/>
@@ -78,6 +78,7 @@ colcon build --packages-select maze_interfaces
 ```
 colcon build --symlink-install 
 ```
+
 <br/>
 
 ## 터틀봇3 카메라 노드 설치 및 실행
@@ -104,18 +105,31 @@ colcon build --symlink-install
 
 카메라 publish노드를 실행한다
 ```
-ros2 run camera_pub pub_cam_node
+ros2 run camera_pub pub_opencv_cam_node
 ```
 
 <br/>
 
 ## 터틀봇3 실행
-(turtlebot3 가 아닌 시뮬레이션을 할 경우에는 스킵)   
+turtlebot3 가 아닌 시뮬레이션을 할 경우에는 스킵    
+
 ssh로 터틀봇3의 private network로 접속
+
+> ip는 내부 사설망을 이용해서 같은 무선 네트워크에서 작동하는데 유의
+ip주소는 turtlebot3에게 할당된 ip주소를 확인하여 넣어준다
+
 ```
 ssh ubuntu@192.168.0.101
 ```
 
+환경변수를 등록합니다. 
+```
+export TURTLEBOT3_MODEL=burger
+```
+
+> Remote PC에서도 동일하게 설정합니다
+
+source setup.sh 하기
 ```
 cd ~/turtlebot3_ws
 . install/setup.sh
@@ -127,12 +141,12 @@ ros2 launch turtlebot3_bringup robot.launch.py
 ```
 
 다른 터미널 창을 이용해서 ssh로 다시 한번 접속을 한 후에   
-카메라 패키지를 실행  (노드명 바꾸기 from ros2_camera...)
+camera_pub 패키지가 설치된 워크 스페이스로 이동 후 실행
 ```
 ssh ubuntu@192.168.0.101
-cd ~/turtlebot3_ws
+cd ~/colcon_ws
 . install/setup.sh
-ros2 launch 카메라패키지 execute 
+ros2 run camera_pub pub_opencv_cam_node
 ```
 
 이제 터틀봇3 버거는 준비 완료~
@@ -145,7 +159,7 @@ ros2 launch 카메라패키지 execute
 1. turtlebot3 구동과 함께 버전으로 실행 시키려면 maze_action_server_node를 실행합니다.  
 (시뮬레이션으로 진행하려면 이부분은 스킵 합니다.)   
 
-마찬가지로 소싱을 함
+마찬가지로 setup파일을 source를 함
 ```
 cd ~/colcon_ws
 source install/setup.sh
@@ -160,7 +174,7 @@ ros2 run maze maze_action_server_node
 시뮬레이션으로 gazebo에서 실행할려고 할 때에는 maze_dolly 패키지의 런치파일로 실행합니다.  
 (터틀봇3 없이 진행할 때)
 
-가제보 소스 해주기
+가제보 source 해주기
 ```
 . /usr/share/gazebo/setup.sh
 ```
@@ -170,13 +184,13 @@ gazebo 런치파일 실행
 ros2 launch maze_dolly maze_dolly.launch.py
 ```
 
-다른 터미널을 열어준 후에 maze_action_server를 실행시키기 위해 런치 파일 실행
+새로 다른 터미널을 열어준 후에 maze_action_server를 실행시키기 위해 런치 파일 실행
 ```
 ros2 launch maze maze_server.launch.py
 ```
 
 3. 액션 클라이언트 노드 실행 (공통)  
-다른 터미널을 열어줍니다. 또 sourcing을 해준다
+다른 터미널을 열어줍니다. source setup.sh을 해줘서 overlay 상태를 만들자
 ```
 source install/setup.sh
 ```
@@ -238,6 +252,11 @@ ros2 run rqt_image_view rqt_image_view
 <br/>
 
 ## reference
-- youtube SEOUL G-캠프 채널의 Roadbalance.com 김수영 대표님 강좌
+- youtube SEOUL G-캠프 채널의 Roadbalance.com 김수영 대표님 유튜브 강좌
 
-- dolly
+- dolly the robot (gazebo 시뮬레이션)   
+[dolly 패키지 깃허브](https://github.com/chapulina/dolly)
+
+- turtlebot3  
+[터틀봇3 e-manual](https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/)
+

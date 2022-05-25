@@ -1,0 +1,16 @@
+material Dolly_custom/iron
+        {
+          receive_shadows off
+          technique
+          {
+            pass
+            {
+              texture_unit
+              {
+                texture iron.jpg
+                filtering anistropic
+                max_anisotropy 16
+              }
+            }
+          }
+        }

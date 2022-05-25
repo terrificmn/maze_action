@@ -58,9 +58,9 @@
         </geometry>
         <material>
           <script>
-            <uri>model://dolly/materials/scripts</uri>
-            <uri>model://dolly/materials/textures</uri>
-            <name>Dolly/fur</name>
+            <uri>model://dolly_custom/materials/scripts</uri>
+            <uri>model://dolly_custom/materials/textures</uri>
+            <name>Dolly_custom/iron</name>
           </script>
           <shader type='pixel'/>
         </material>
@@ -515,9 +515,9 @@
         </geometry>
         <material>
           <script>
-            <uri>model://dolly/materials/scripts</uri>
-            <uri>model://dolly/materials/textures</uri>
-            <name>Dolly/fur</name>
+            <uri>model://dolly_custom/materials/scripts</uri>
+            <uri>model://dolly_custom/materials/textures</uri>
+            <name>Dolly_custom/iron</name>
           </script>
           <shader type='pixel'/>
         </material>
