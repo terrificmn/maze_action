@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <sdf version='1.7'>
-  <model name='dolly_custom'>
+  <model name='customized_dolly'>
     <link name='chassis'>
       <inertial>
         <mass>1</mass>
@@ -58,9 +58,9 @@
         </geometry>
         <material>
           <script>
-            <uri>model://dolly_custom/materials/scripts</uri>
-            <uri>model://dolly_custom/materials/textures</uri>
-            <name>Dolly_custom/iron</name>
+            <uri>model://customized_dolly/materials/scripts</uri>
+            <uri>model://customized_dolly/materials/textures</uri>
+            <name>customized_dolly/iron</name>
           </script>
           <shader type='pixel'/>
         </material>
@@ -515,9 +515,9 @@
         </geometry>
         <material>
           <script>
-            <uri>model://dolly_custom/materials/scripts</uri>
-            <uri>model://dolly_custom/materials/textures</uri>
-            <name>Dolly_custom/iron</name>
+            <uri>model://customized_dolly/materials/scripts</uri>
+            <uri>model://customized_dolly/materials/textures</uri>
+            <name>customized_dolly/iron</name>
           </script>
           <shader type='pixel'/>
         </material>

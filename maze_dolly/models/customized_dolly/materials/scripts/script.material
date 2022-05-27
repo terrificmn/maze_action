@@ -1,4 +1,4 @@
-material Dolly_custom/iron
+material customized_dolly/iron
         {
           receive_shadows off
           technique

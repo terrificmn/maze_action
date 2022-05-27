@@ -12,7 +12,7 @@
 
         <include>
             <pose>-5.4 4.0 0.33 0 0 0</pose>
-            <uri>model://dolly_custom</uri>
+            <uri>model://customized_dolly</uri>
         </include>
 
         <include>

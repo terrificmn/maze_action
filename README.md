@@ -54,7 +54,7 @@ maze_action_server, maze_action_client로 ROS2 action으로 로봇 구동
 사용자 정의 ROS2 action type
 
 3. maze_dolly
-gazebo로 커스텀 dolly 로봇으로 시뮬레이션
+gazebo로  customized_dolly 로봇으로 시뮬레이션
 
 
 <br/>
@@ -85,7 +85,7 @@ colcon build --symlink-install
 
 ## 터틀봇3 카메라 노드 설치 및 실행
 터틀봇3를 직접 사용하는 경우에 터틀봇3에 설치를 할 수 있습니다.   
-<span style="color:yellow">(만약 gazebo를 사용하려면 스킵해주세요)</span>
+[turtlebot3 없이 gazebo 시뮬레이션을 사용하려면 스킵 하고 여기를 보세요](#두-번째-gazebo로-시뮬레이션으로-진행할-경우)
 
 Remote PC에서 ssh로 turtlebot3의 라즈베리파이에 접속 합니다.   
 ```
@@ -160,7 +160,7 @@ ros2 run camera_pub pub_opencv_cam_node
 상황에 따라 선택해서 실행해주세요   
 
 ### 첫 번째, turtlebot3 로봇에 실제 구동할 경우
-<span style="color:yellow">(turtlebot3가 필요합니다)</span>  
+(turtlebot3가 필요합니다)
 
 1. turtlebot3 구동과 함께 버전으로 실행 시 maze_action_server_node를 실행합니다.  
 
@@ -176,7 +176,7 @@ ros2 run maze maze_action_server_node
 ```
 
 ### 두 번째, gazebo로 시뮬레이션으로 진행할 경우
-<span style="color:yellow">(turtlebot3 없이 Gazebo 실행할 때)</span>
+(turtlebot3 없이 Gazebo 실행할 때)
 1. 시뮬레이션으로 진행 할 시 gazebo 및 런치파일 실행  
 시뮬레이션으로 gazebo에서 실행할려고 할 때에는 maze_dolly 패키지의 런치파일로 실행합니다.   
 
@@ -202,8 +202,8 @@ cd ~/colcon_ws
 ros2 launch maze maze_server.launch.py
 ```
 
-![미로 custom_dolly](./images/dolly_maze_sh.jpg)   
-*[Gazebo 시뮬레이션 - custom_dolly, maze]*
+![a customized_dolly in a maze](./images/dolly_maze_sh.jpg)   
+*[Gazebo 시뮬레이션 - customized_dolly 모델, maze]*
 
 만약 gazebo가 설치가 안 되어있는 경우에는 설치를 합니다   
 ROS2 foxy 버전 기준으로 gazebo 설치
