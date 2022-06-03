@@ -187,8 +187,13 @@ int main(int argc, char ** argv) {
                 std::cin >> std::ws >> user_input; //remove white space
             
                 int convertedInput = atoi(user_input.c_str()); // converting string to integer due to 'q' exit
-                user_inputs_vec.push_back(convertedInput);
-            
+                // action_server에서 4 이상이 넘어가면 reject을 하지만, 10자리 이상 입력 방지
+                if(convertedInput > 3) {
+                    RCLCPP_WARN(maze_action_client->get_logger(), "Number exceeded. Only single digits are allowed. Retype");
+                } else {
+                    user_inputs_vec.push_back(convertedInput);
+                }
+                
                 // q 입력시 종료
                 if (user_input == "q") {
                     user_inputs_vec.pop_back();  //마지막 q로 들어간 값은 지우기
